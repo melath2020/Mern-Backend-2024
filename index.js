@@ -1,5 +1,5 @@
-const app=require("./app")
-
+const app=require("./app");
+const connectDatabase = require("./db/Database");
 
 
 // Handling uncaught Exception
@@ -16,6 +16,8 @@ process.on("uncaughtException", (err) => {
     });
   }
 
+  // connect db
+  connectDatabase();
 
     // create server
 const server = app.listen(process.env.PORT, () => {
