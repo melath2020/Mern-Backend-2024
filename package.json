@@ -6,9 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
-  "author": "Aswin sudhakar",
+  "author": "Aswin sudhaka",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
