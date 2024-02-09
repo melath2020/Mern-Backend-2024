@@ -4,6 +4,8 @@ const { upload } = require("../multer");
 const ErrorHandler = require("../utils/ErrorHandler");
 const router = express.Router();
 const fs = require('fs');
+const User = require("../model/user");
+const jwt =require('jsonwebtoken');
 
 // create user
 router.post("/create-user",upload.single("file"),async(req,res,next)=>{
@@ -71,3 +73,6 @@ const createActivationToken=(user) => {
       expiresIn: "5m",
     });
   }
+
+
+  module.exports = router;
