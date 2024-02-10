@@ -14,7 +14,21 @@ router.post("/create-user",upload.single("file"),async(req,res,next)=>{
         const userEmail = await User.findOne({ email });
     
         if (userEmail) {
-         
+          const filename=req.file.filename;
+          const filePath=`uploads/${filename}`;
+          fs.unlink(filePath,(err)=>{
+            if(err){
+              console.log(err);
+              res.status(500).json({
+                message:"Error Deleting file"
+              })
+
+            }else{
+              res.json({
+                message:"File Deleted Successfully"
+              })
+            }
+          })
             return next(new ErrorHandler("User already exists", 400));
           }
     
