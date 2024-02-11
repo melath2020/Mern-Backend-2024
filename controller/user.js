@@ -9,6 +9,8 @@ const fs = require('fs');
 const User = require("../model/user");
 const jwt =require('jsonwebtoken');
 const sendToken = require("../utils/jwtToken");
+const catchAsyncErrors=require('../middleware/catchAsyncErrors');
+
 // create user
 router.post("/create-user",upload.single("file"),async(req,res,next)=>{
     try {
