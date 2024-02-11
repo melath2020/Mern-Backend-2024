@@ -122,6 +122,11 @@ router.post("/activation",catchAsyncErrors(async(req,res,next)=>{
 })
 );
 
+// login user
+router.post("/login-user",catchAsyncErrors(async(req,res,next)=>{
+  
+}))
+
 
 
 
