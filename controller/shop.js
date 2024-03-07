@@ -6,12 +6,14 @@ const sendMail = require("../utils/sendMail");
 const { isAuthenticated, isSeller, isAdmin } = require("../middleware/auth");
 const Shop = require("../model/shop");
 const fs = require('fs');
+const catchAsyncErrors = require("../middleware/catchAsyncErrors");
+const ErrorHandler = require("../utils/ErrorHandler");
 
 
 // create shop
 router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
     try {
-      const { email } = req.body;
+      const { name,email,password,avatar ,address,phoneNumber,zipCode} = req.body;
       const sellerEmail = await Shop.findOne({ email });
       if (sellerEmail) {
         const filename=req.file.filename;
@@ -33,16 +35,13 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
         }
   
       const seller = {
-        name: req.body.name,
+        name: name,
         email: email,
-        password: req.body.password,
-        avatar: {
-          public_id: myCloud.public_id,
-          url: myCloud.secure_url,
-        },
-        address: req.body.address,
-        phoneNumber: req.body.phoneNumber,
-        zipCode: req.body.zipCode,
+        password: password,
+        avatar: avatar,
+        address: address,
+        phoneNumber: phoneNumber,
+        zipCode: zipCode,
       };
   
       const activationToken = createActivationToken(seller);
@@ -66,6 +65,54 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler(error.message, 400));
     }
   }));
+
+  // create activation token
+const createActivationToken = (user) => {
+  return jwt.sign(user, process.env.ACTIVATION_SECRET, {
+    expiresIn: "5m",
+  });
+};
+
+// activate user
+router.post(
+  "/activation",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const { activation_token } = req.body;
+
+      const newSeller = jwt.verify(
+        activation_token,
+        process.env.ACTIVATION_SECRET
+      );
+
+      if (!newSeller) {
+        return next(new ErrorHandler("Invalid token", 400));
+      }
+      const { name, email, password, avatar, zipCode, address, phoneNumber } =
+        newSeller;
+
+      let seller = await Shop.findOne({ email });
+
+      if (seller) {
+        return next(new ErrorHandler("User already exists", 400));
+      }
+
+      seller = await Shop.create({
+        name,
+        email,
+        avatar,
+        password,
+        zipCode,
+        address,
+        phoneNumber,
+      });
+
+      sendShopToken(seller, 201, res);
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
 
 
 
