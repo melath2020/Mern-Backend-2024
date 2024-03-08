@@ -8,15 +8,17 @@ const Shop = require("../model/shop");
 const fs = require('fs');
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
+const { upload } = require("../multer");
+const { baseUrl } = require("../utils/baseUrl");
 
 
-// create shop
-router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
+  router.post("/create-shop",upload.single("file"),async(req,res,next)=>{
     try {
-      const { name,email,password,avatar ,address,phoneNumber,zipCode} = req.body;
+      const { email } = req.body;
       const sellerEmail = await Shop.findOne({ email });
+
       if (sellerEmail) {
-        const filename=req.file.filename;
+        const filename=req.file?.filename;
         const filePath=`uploads/${filename}`;
         fs.unlink(filePath,(err)=>{
           if(err){
@@ -33,38 +35,47 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
         })
           return next(new ErrorHandler("User already exists", 400));
         }
+
+        const filename=req.file.filename;
+        const fileUrl=path.join(filename);
   
-      const seller = {
-        name: name,
-        email: email,
-        password: password,
-        avatar: avatar,
-        address: address,
-        phoneNumber: phoneNumber,
-        zipCode: zipCode,
-      };
+        
   
-      const activationToken = createActivationToken(seller);
-  
-      const activationUrl = `https://eshop-tutorial-pyri.vercel.app/seller/activation/${activationToken}`;
-  
-      try {
-        await sendMail({
-          email: seller.email,
-          subject: "Activate your Shop",
-          message: `Hello ${seller.name}, please click on the link to activate your shop: ${activationUrl}`,
-        });
-        res.status(201).json({
-          success: true,
-          message: `please check your email:- ${seller.email} to activate your shop!`,
-        });
-      } catch (error) {
-        return next(new ErrorHandler(error.message, 500));
-      }
+        const seller = {
+          name: req.body.name,
+          email: email,
+          password: req.body.password,
+          avatar:fileUrl,
+          addres:req.body.addres,
+          phoneNumber:req.body.phoneNumber,
+          zipCode:req.body.zipCode
+        };
+        const activationToken = createActivationToken(seller);
+        const activationUrl = `${baseUrl}seller/activation/${activationToken}`;
+
+        try {
+          await sendMail({
+            email:seller.email,
+            subject:"Activate Your Shop",
+            message:`Hello ${seller.name}, please click on the link to activate your shop : ${activationUrl}`,
+          })
+          res.status(201).json({
+            success:true,
+            message:`please check your email:- ${seller.email} to activate your shop`
+          })
+          
+        } catch (error) {
+          return next(new ErrorHandler(error.message,500))
+        }
     } catch (error) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message),400);
     }
-  }));
+      
+     
+
+  
+   
+})
 
   // create activation token
 const createActivationToken = (user) => {
@@ -75,7 +86,7 @@ const createActivationToken = (user) => {
 
 // activate user
 router.post(
-  "/activation",
+  "shop/activation",
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { activation_token } = req.body;
