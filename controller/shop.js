@@ -51,7 +51,7 @@ const { baseUrl } = require("../utils/baseUrl");
           zipCode:req.body.zipCode
         };
         const activationToken = createActivationToken(seller);
-        const activationUrl = `${baseUrl}seller/activation/${activationToken}`;
+        const activationUrl = `${baseUrl}/seller/activation/${activationToken}`;
 
         try {
           await sendMail({
