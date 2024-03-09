@@ -10,7 +10,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const { upload } = require("../multer");
 const { baseUrl } = require("../utils/baseUrl");
-const sendToken = require("../utils/jwtToken");
+const sendShopToken = require("../utils/shopToken");
 
 
   router.post("/create-shop",upload.single("file"),async(req,res,next)=>{
@@ -119,7 +119,7 @@ router.post(
         phoneNumber,
       });
 
-      sendToken(seller, 201, res);
+      sendShopToken(seller, 201, res);
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
@@ -130,6 +130,7 @@ router.post(
 router.post("/login-shop",catchAsyncErrors(async(req,res,next)=>{
   try {
     const { email, password } = req.body;
+    console.log(email)
     if (!email || !password) {
       return next(new ErrorHandler("Please provide the all fields!", 400));
     }
@@ -149,7 +150,7 @@ router.post("/login-shop",catchAsyncErrors(async(req,res,next)=>{
     }
 
     
-    sendToken(user, 201, res);
+    sendShopToken(user, 201, res);
     
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));
