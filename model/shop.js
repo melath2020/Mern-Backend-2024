@@ -20,7 +20,7 @@ const shopSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  address: {
+ address : {
     type: String,
     required: true,
   },
@@ -32,16 +32,10 @@ const shopSchema = new mongoose.Schema({
     type: String,
     default: "Seller",
   },
-  avatar: {
-    public_id: {
-      type: String,
-      required: true,
-    },
-    url: {
-      type: String,
-      required: true,
-    },
-  },
+  avatar:{
+    type:String,
+
+ },
   zipCode: {
     type: Number,
     required: true,

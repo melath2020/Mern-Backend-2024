@@ -10,6 +10,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const { upload } = require("../multer");
 const { baseUrl } = require("../utils/baseUrl");
+const sendToken = require("../utils/jwtToken");
 
 
   router.post("/create-shop",upload.single("file"),async(req,res,next)=>{
@@ -46,7 +47,7 @@ const { baseUrl } = require("../utils/baseUrl");
           email: email,
           password: req.body.password,
           avatar:fileUrl,
-          addres:req.body.addres,
+          address:req.body.address,
           phoneNumber:req.body.phoneNumber,
           zipCode:req.body.zipCode
         };
@@ -86,7 +87,7 @@ const createActivationToken = (user) => {
 
 // activate user
 router.post(
-  "shop/activation",
+  "/activation",
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { activation_token } = req.body;
@@ -118,13 +119,42 @@ router.post(
         phoneNumber,
       });
 
-      sendShopToken(seller, 201, res);
+      sendToken(seller, 201, res);
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
   })
 );
 
+// login shop 
+router.post("/login-shop",catchAsyncErrors(async(req,res,next)=>{
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new ErrorHandler("Please provide the all fields!", 400));
+    }
+    const user = await Shop.findOne({ email }).select("+password");
+
+    
+    if (!user) {
+      return next(new ErrorHandler("User doesn't exists!", 400));
+    }
+
+    const isPasswordValid = await user.comparePassword(password);
+
+    if (!isPasswordValid) {
+      return next(
+        new ErrorHandler("Please provide the correct information", 400)
+      );
+    }
+
+    
+    sendToken(user, 201, res);
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+}))
 
 
 
