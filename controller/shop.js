@@ -161,15 +161,15 @@ router.post("/login-shop",catchAsyncErrors(async(req,res,next)=>{
 // load user
 router.get("/getSeller",isSeller,catchAsyncErrors(async(req,res,next)=>{
   try {
-    const user=await Shop.findById(req.seller._id);
+    const seller=await Shop.findById(req.seller._id);
 
-    if (!user) {
+    if (!seller) {
       return next(new ErrorHandler("User doesn't exists", 400));
     }
 
     res.status(200).json({
       success: true,
-      user,
+      seller,
     });
     
   } catch (error) {
